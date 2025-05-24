@@ -48,10 +48,14 @@ private class FormStateHandler: ObservableObject {
     }
     
     func submit() {
-        currentFocusedFieldId = FocusService.getNextFocusFieldId(
-            states: fieldStates,
-            currentFocusField: currentFocusedFieldId
-        )
+        let isSubmitOverrided = fieldStates.first(where: { $0.isFocused })?.isSubmitOverrided == true
+        
+        if isSubmitOverrided == false {
+            currentFocusedFieldId = FocusService.getNextFocusFieldId(
+                states: fieldStates,
+                currentFocusField: currentFocusedFieldId
+            )
+        }
     }
 }
 

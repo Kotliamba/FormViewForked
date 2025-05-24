@@ -17,6 +17,7 @@ public struct FormField<Value: Hashable, Rule: ValidationRule, Content: View>: V
     @FocusState private var isFocused: Bool
     @State private var id: String = UUID().uuidString
     @Environment(\.focusedFieldId) var currentFocusedFieldId
+    private let isSubmitOverrided: Bool
     
     // ValidateInput
     private let validator: FieldValidator<Rule>
@@ -27,11 +28,13 @@ public struct FormField<Value: Hashable, Rule: ValidationRule, Content: View>: V
         value: Binding<Value>,
         rules: [Rule] = [],
         failedValidationRules: Binding<[Rule]>,
+        isSubmitOverrided: Bool = false,
         @ViewBuilder content: @escaping () -> Content
     ) {
         self._value = value
         self._failedValidationRules = failedValidationRules
         self.content = content
+        self.isSubmitOverrided = isSubmitOverrided
         self.validator = FieldValidator(rules: rules)
     }
     
@@ -47,7 +50,7 @@ public struct FormField<Value: Hashable, Rule: ValidationRule, Content: View>: V
                 key: FieldStatesKey.self,
                 value: [
                     // Замыкание для каждого филда вызывается FormValidator'ом из FormView для валидации по требованию
-                    FieldState(id: id, isFocused: isFocused) {
+                    FieldState(id: id, isFocused: isFocused, isSubmitOverrided: isSubmitOverrided) {
                         let failedRules = validator.validate(value: value)
                         failedValidationRules = failedRules
                         

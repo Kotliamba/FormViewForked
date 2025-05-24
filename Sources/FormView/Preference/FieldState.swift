@@ -10,6 +10,7 @@ import SwiftUI
 struct FieldState {
     var id: String
     var isFocused: Bool
+    var isSubmitOverrided: Bool = false
     var onValidate: () -> Bool
 }
 
