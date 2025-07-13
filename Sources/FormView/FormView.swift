@@ -19,10 +19,21 @@ public enum ErrorHideBehaviour {
     case onFocusLost
 }
 
-private class FormStateHandler: ObservableObject {
-    @Published var fieldStates: [FieldState] = .empty
-    @Published var currentFocusedFieldId: String = .empty
-    var formValidator = FormValidator()
+public class FormStateHandler: ObservableObject {
+    @Published var fieldStates: [FieldState]
+    @Published var currentFocusedFieldId: String
+    var formValidator: FormValidator
+    
+    public init() {
+        self.fieldStates = .empty
+        self.currentFocusedFieldId = .empty
+        self.formValidator = FormValidator()
+    }
+    
+    @discardableResult
+    public func validate(focusOnFirstFailedField: Bool = false) -> Bool {
+        formValidator.validate(focusOnFirstFailedField: focusOnFirstFailedField)
+    }
     
     func updateFieldStates(newStates: [FieldState]) {
         fieldStates = newStates
@@ -60,24 +71,26 @@ private class FormStateHandler: ObservableObject {
 }
 
 public struct FormView<Content: View>: View {
-    @StateObject private var formStateHandler = FormStateHandler()
-    @ViewBuilder private let content: (FormValidator) -> Content
+    @ObservedObject private var formStateHandler: FormStateHandler
+    @ViewBuilder private let content: () -> Content
     
     private let errorHideBehaviour: ErrorHideBehaviour
     private let validationBehaviour: ValidationBehaviour
     
     public init(
+        formStateHandler: FormStateHandler,
         validate: ValidationBehaviour = .never,
         hideError: ErrorHideBehaviour = .onValueChanged,
-        @ViewBuilder content: @escaping (FormValidator) -> Content
+        @ViewBuilder content: @escaping () -> Content
     ) {
         self.content = content
+        self.formStateHandler = formStateHandler
         self.validationBehaviour = validate
         self.errorHideBehaviour = hideError
     }
     
     public var body: some View {
-        return content(formStateHandler.formValidator)
+        return content()
             // [weak formStateHandler] необходимо для избежания захвата сильных ссылок между
             // замыканием и @StateObject
             .onPreferenceChange(FieldStatesKey.self) { [weak formStateHandler] newStates in

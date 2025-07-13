@@ -13,15 +13,10 @@ let package = Package(
             name: "FormView",
             targets: ["FormView"])
     ],
-    dependencies: [
-        .package(url: "https://github.com/nalexn/ViewInspector", branch: "master")
-    ],
     targets: [
         .target(
             name: "FormView",
-            dependencies: []),
-        .testTarget(
-            name: "FormViewTests",
-            dependencies: ["FormView", "ViewInspector"])
+            dependencies: []
+        )
     ]
 )

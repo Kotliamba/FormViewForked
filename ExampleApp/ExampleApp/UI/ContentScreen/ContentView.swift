@@ -13,6 +13,7 @@ struct ContentView: View {
     
     var body: some View {
         FormView(
+            formStateHandler: viewModel.stateHandler,
             validate: .never,
             hideError: .onValueChanged
         ) { proxy in
